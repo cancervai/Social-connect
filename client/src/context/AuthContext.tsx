@@ -1,7 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import type { User } from '../types';
-import { login as loginApi, register as registerApi, logout as logoutApi } from '../services/authService';
-import { setAccessToken } from '../services/api';
 
 interface AuthContextValue {
   user: User | null;
@@ -11,6 +9,16 @@ interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
+const STORAGE_KEY = 'sc_demo_user';
+
+const DEMO_ADMIN: User = {
+  id: 'demo-admin-001',
+  email: 'admin@socialconnect.demo',
+  name: 'Demo Admin',
+  role: 'ADMIN',
+  avatarUrl: undefined,
+};
+
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -18,35 +26,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    import('../services/authService').then(({ refreshToken }) =>
-      refreshToken()
-        .then((token) => {
-          setAccessToken(token);
-          import('../services/api').then(({ api }) =>
-            api.get('/auth/me').then((res) => setUser(res.data.data.user)).catch(() => null)
-          );
-        })
-        .catch(() => null)
-        .finally(() => setIsLoading(false))
-    );
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) setUser(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
+    setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const data = await loginApi({ email, password });
-    setAccessToken(data.accessToken);
-    setUser(data.user);
+  const persist = (u: User | null) => {
+    if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    else localStorage.removeItem(STORAGE_KEY);
+    setUser(u);
+  };
+
+  const login = useCallback(async (email: string, _password: string) => {
+    await new Promise((r) => setTimeout(r, 600));
+    if (email === DEMO_ADMIN.email) {
+      persist(DEMO_ADMIN);
+    } else {
+      persist({ ...DEMO_ADMIN, id: `demo-${Date.now()}`, email, name: email.split('@')[0] });
+    }
   }, []);
 
-  const register = useCallback(async (email: string, password: string, name: string, workspaceName: string) => {
-    const data = await registerApi({ email, password, name, workspaceName });
-    setAccessToken(data.accessToken);
-    setUser(data.user);
+  const register = useCallback(async (email: string, _password: string, name: string, _workspaceName: string) => {
+    await new Promise((r) => setTimeout(r, 800));
+    persist({ id: `demo-${Date.now()}`, email, name, role: 'ADMIN' });
   }, []);
 
   const logout = useCallback(async () => {
-    await logoutApi();
-    setAccessToken(null);
-    setUser(null);
+    persist(null);
   }, []);
 
   return (

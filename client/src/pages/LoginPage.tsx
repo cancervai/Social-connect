@@ -27,6 +27,16 @@ export function LoginPage() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    try {
+      await login('admin@socialconnect.demo', 'demo');
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
@@ -37,9 +47,24 @@ export function LoginPage() {
           <span className="text-xl font-bold text-text-primary">Social Connect</span>
         </div>
 
+        {/* Demo banner */}
+        <div className="mb-4 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 px-4 py-3">
+          <p className="text-xs text-accent-cyan font-medium mb-2">Demo Preview — no backend required</p>
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full text-sm"
+            loading={loading}
+            onClick={handleDemoLogin}
+          >
+            <Zap size={14} className="mr-2" />
+            Enter as Demo Admin
+          </Button>
+        </div>
+
         <div className="bg-surface border border-border rounded-xl p-6 shadow-surface">
           <h1 className="text-xl font-semibold text-text-primary mb-1">Welcome back</h1>
-          <p className="text-sm text-text-secondary mb-6">Sign in to your workspace</p>
+          <p className="text-sm text-text-secondary mb-6">Sign in with any email &amp; password</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
@@ -54,7 +79,7 @@ export function LoginPage() {
             <Input
               label="Password"
               type="password"
-              placeholder="••••••••"
+              placeholder="any password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               icon={<Lock size={14} />}

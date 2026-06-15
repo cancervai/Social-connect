@@ -5,7 +5,7 @@ import { TopBar } from '../components/layout/TopBar';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { Spinner } from '../components/ui/Spinner';
-import { formatNumber, formatRelative } from '../utils/formatters';
+import { formatNumber } from '../utils/formatters';
 import { getOverview } from '../services/analyticsService';
 import type { AnalyticsOverview } from '../types';
 

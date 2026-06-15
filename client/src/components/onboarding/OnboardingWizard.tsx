@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { MetaVerificationStep } from './MetaVerificationStep';
 import { LinkedInConnectStep } from './LinkedInConnectStep';
 
